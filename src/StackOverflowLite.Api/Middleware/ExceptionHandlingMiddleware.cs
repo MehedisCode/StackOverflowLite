@@ -27,6 +27,11 @@ public class ExceptionHandlingMiddleware(
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
         }
+        catch (DuplicateTagException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+        }
         catch (InvalidCredentialsException ex)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;

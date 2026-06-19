@@ -21,4 +21,26 @@ public class TagRepository(ApplicationDbContext db)
             .Where(t => normalized.Contains(t.Name))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<(IReadOnlyList<Tag> Items, int TotalCount)> ListAsync(
+        ListTagsFilter filter, CancellationToken cancellationToken = default)
+    {
+        var query = Db.Tags.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var pattern = $"%{filter.Search.ToLowerInvariant()}%";
+            query = query.Where(t => EF.Functions.ILike(t.Name, pattern));
+        }
+
+        var total = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(t => t.Name)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, total);
+    }
 }
