@@ -8,7 +8,7 @@ namespace StackOverflowLite.Infrastructure.Services;
 public class CurrentUserService(IHttpContextAccessor accessor) : ICurrentUser
 {
     public bool IsAuthenticated =>
-        accessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+        accessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 
     public Guid? Id
     {

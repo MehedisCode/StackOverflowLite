@@ -14,12 +14,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .IsRequired()
             .HasMaxLength(80);
 
-        builder.Property(u => u.Bio)
-            .HasMaxLength(500);
-
-        builder.Property(u => u.AvatarUrl)
-            .HasMaxLength(500);
-
         builder.Property(u => u.Reputation)
             .HasDefaultValue(1);
 

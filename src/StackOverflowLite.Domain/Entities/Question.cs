@@ -16,4 +16,6 @@ public class Question
     public ICollection<Answer> Answers { get; private set; } = [];
     public ICollection<QuestionTag> QuestionTags { get; private set; } = [];
     public Answer? AcceptedAnswer { get; set; }
+
+    public void MarkUpdated() => UpdatedAt = DateTime.UtcNow;
 }

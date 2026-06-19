@@ -6,6 +6,7 @@ using StackOverflowLite.Application.Common.Interfaces;
 using StackOverflowLite.Application.Common.Options;
 using StackOverflowLite.Infrastructure.Identity;
 using StackOverflowLite.Infrastructure.Persistence;
+using StackOverflowLite.Infrastructure.Persistence.Repositories;
 using StackOverflowLite.Infrastructure.Services;
 
 namespace StackOverflowLite.Infrastructure;
@@ -27,17 +28,23 @@ public static class DependencyInjection
         services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 8;
+                options.Password.RequiredLength = 6;
             })
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<ICurrentUser, CurrentUserService>();
         services.AddScoped<IIdentityService, IdentityService>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<IQuestionRepository, QuestionRepository>();
+        services.AddScoped<ITagRepository, TagRepository>();
 
         return services;
     }

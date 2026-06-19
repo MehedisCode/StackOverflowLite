@@ -1,0 +1,27 @@
+using FluentValidation;
+
+namespace StackOverflowLite.Application.Features.Questions.Commands.CreateQuestion;
+
+public class CreateQuestionCommandValidator : AbstractValidator<CreateQuestionCommand>
+{
+    public CreateQuestionCommandValidator()
+    {
+        RuleFor(x => x.Title)
+            .NotEmpty()
+            .MinimumLength(5)
+            .MaximumLength(150);
+
+        RuleFor(x => x.Body)
+            .NotEmpty()
+            .MinimumLength(5);
+
+        RuleFor(x => x.Tags)
+            .NotNull()
+            .Must(t => t.Length <= 5)
+                .WithMessage("At most 5 tags are allowed.");
+
+        RuleForEach(x => x.Tags)
+            .NotEmpty()
+            .MaximumLength(25);
+    }
+}

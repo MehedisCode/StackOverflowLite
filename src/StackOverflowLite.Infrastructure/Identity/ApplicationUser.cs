@@ -6,8 +6,6 @@ namespace StackOverflowLite.Infrastructure.Identity;
 public class ApplicationUser : IdentityUser<Guid>
 {
     public string DisplayName { get; set; } = string.Empty;
-    public string? Bio { get; set; }
-    public string? AvatarUrl { get; set; }
     public int Reputation { get; private set; } = 1;
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; private set; }

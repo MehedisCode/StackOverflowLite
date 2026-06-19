@@ -9,7 +9,7 @@ using StackOverflowLite.Application.Features.Auth.Queries.Me;
 namespace StackOverflowLite.Api.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("api/[controller]")]
 public class AuthController(ISender sender) : ControllerBase
 {
     [HttpPost("register")]
