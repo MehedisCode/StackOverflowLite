@@ -12,4 +12,6 @@ public class Answer
     public DateTime? UpdatedAt { get; private set; }
 
     public Question Question { get; set; } = null!;
+
+    public void MarkUpdated() => UpdatedAt = DateTime.UtcNow;
 }
