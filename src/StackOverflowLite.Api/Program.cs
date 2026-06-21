@@ -10,8 +10,10 @@ using StackOverflowLite.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((_, configuration) =>
-    configuration.WriteTo.Console());
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();

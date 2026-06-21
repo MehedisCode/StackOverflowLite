@@ -14,4 +14,8 @@ public class Answer
     public Question Question { get; set; } = null!;
 
     public void MarkUpdated() => UpdatedAt = DateTime.UtcNow;
+
+    public void MarkAccepted() => IsAccepted = true;
+
+    public void MarkUnaccepted() => IsAccepted = false;
 }

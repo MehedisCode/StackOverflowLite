@@ -1,11 +1,13 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StackOverflowLite.Application.Common.Models;
-using StackOverflowLite.Application.Features.Answers.Commands.CreateAnswer;
-using StackOverflowLite.Application.Features.Answers.Commands.DeleteAnswer;
-using StackOverflowLite.Application.Features.Answers.Commands.UpdateAnswer;
 using StackOverflowLite.Application.Features.Answers.DTOs;
+using StackOverflowLite.Application.Features.Answers.Commands.CreateAnswer;
+using StackOverflowLite.Application.Features.Answers.Commands.AcceptAnswer;
+using StackOverflowLite.Application.Features.Answers.Commands.DeleteAnswer;
+using StackOverflowLite.Application.Features.Answers.Commands.UnacceptAnswer;
+using StackOverflowLite.Application.Features.Answers.Commands.UpdateAnswer;
 using StackOverflowLite.Application.Features.Answers.Queries.GetAnswersByQuestion;
 
 namespace StackOverflowLite.Api.Controllers;
@@ -60,6 +62,26 @@ public class AnswersController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         await sender.Send(new DeleteAnswerCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/accept")]
+    [Authorize]
+    public async Task<IActionResult> Accept(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new AcceptAnswerCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}/accept")]
+    [Authorize]
+    public async Task<IActionResult> Unaccept(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new UnacceptAnswerCommand(id), cancellationToken);
         return NoContent();
     }
 }
