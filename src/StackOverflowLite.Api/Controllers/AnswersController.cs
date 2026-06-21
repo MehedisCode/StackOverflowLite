@@ -9,6 +9,9 @@ using StackOverflowLite.Application.Features.Answers.Commands.DeleteAnswer;
 using StackOverflowLite.Application.Features.Answers.Commands.UnacceptAnswer;
 using StackOverflowLite.Application.Features.Answers.Commands.UpdateAnswer;
 using StackOverflowLite.Application.Features.Answers.Queries.GetAnswersByQuestion;
+using StackOverflowLite.Application.Features.Votes.Commands.DownvoteAnswer;
+using StackOverflowLite.Application.Features.Votes.Commands.RemoveAnswerVote;
+using StackOverflowLite.Application.Features.Votes.Commands.UpvoteAnswer;
 
 namespace StackOverflowLite.Api.Controllers;
 
@@ -82,6 +85,36 @@ public class AnswersController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         await sender.Send(new UnacceptAnswerCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/upvote")]
+    [Authorize]
+    public async Task<IActionResult> Upvote(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new UpvoteAnswerCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/downvote")]
+    [Authorize]
+    public async Task<IActionResult> Downvote(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new DownvoteAnswerCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}/vote")]
+    [Authorize]
+    public async Task<IActionResult> RemoveVote(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new RemoveAnswerVoteCommand(id), cancellationToken);
         return NoContent();
     }
 }

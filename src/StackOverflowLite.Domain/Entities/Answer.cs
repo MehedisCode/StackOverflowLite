@@ -18,4 +18,6 @@ public class Answer
     public void MarkAccepted() => IsAccepted = true;
 
     public void MarkUnaccepted() => IsAccepted = false;
+
+    public void IncrementScore(int delta) => Score += delta;
 }

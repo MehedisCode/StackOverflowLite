@@ -1,0 +1,29 @@
+using MediatR;
+using StackOverflowLite.Application.Common.Exceptions;
+using StackOverflowLite.Application.Common.Interfaces;
+using StackOverflowLite.Domain.Enums;
+
+namespace StackOverflowLite.Application.Features.Votes.Commands.DownvoteAnswer;
+
+public class DownvoteAnswerCommandHandler(
+    ICurrentUser currentUser,
+    IVoteService voteService) : IRequestHandler<DownvoteAnswerCommand, Unit>
+{
+    public async Task<Unit> Handle(
+        DownvoteAnswerCommand request, CancellationToken cancellationToken)
+    {
+        if (currentUser.Id is null)
+        {
+            throw new ForbiddenAccessException("User is not authenticated.");
+        }
+
+        await voteService.CastVoteAsync(
+            currentUser.Id.Value,
+            VoteTargetType.Answer,
+            request.AnswerId,
+            VoteType.Downvote,
+            cancellationToken);
+
+        return Unit.Value;
+    }
+}

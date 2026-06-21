@@ -33,4 +33,6 @@ public class Question
             AnswerCount--;
         }
     }
+
+    public void IncrementScore(int delta) => Score += delta;
 }

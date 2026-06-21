@@ -1,13 +1,16 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StackOverflowLite.Application.Common.Models;
+using StackOverflowLite.Application.Features.Questions.DTOs;
+using StackOverflowLite.Application.Features.Votes.Commands.UpvoteQuestion;
+using StackOverflowLite.Application.Features.Questions.Queries.GetQuestions;
+using StackOverflowLite.Application.Features.Votes.Commands.DownvoteQuestion;
+using StackOverflowLite.Application.Features.Votes.Commands.RemoveQuestionVote;
 using StackOverflowLite.Application.Features.Questions.Commands.CreateQuestion;
 using StackOverflowLite.Application.Features.Questions.Commands.DeleteQuestion;
 using StackOverflowLite.Application.Features.Questions.Commands.UpdateQuestion;
-using StackOverflowLite.Application.Features.Questions.DTOs;
 using StackOverflowLite.Application.Features.Questions.Queries.GetQuestionById;
-using StackOverflowLite.Application.Features.Questions.Queries.GetQuestions;
 
 namespace StackOverflowLite.Api.Controllers;
 
@@ -78,5 +81,35 @@ public class QuestionsController(ISender sender) : ControllerBase
             new GetQuestionsQuery(page, pageSize, tag, search),
             cancellationToken);
         return Ok(result);
+    }
+
+    [HttpPost("{id:guid}/upvote")]
+    [Authorize]
+    public async Task<IActionResult> Upvote(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new UpvoteQuestionCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/downvote")]
+    [Authorize]
+    public async Task<IActionResult> Downvote(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new DownvoteQuestionCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}/vote")]
+    [Authorize]
+    public async Task<IActionResult> RemoveVote(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new RemoveQuestionVoteCommand(id), cancellationToken);
+        return NoContent();
     }
 }

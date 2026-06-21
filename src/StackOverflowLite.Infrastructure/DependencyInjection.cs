@@ -1,13 +1,12 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using StackOverflowLite.Application.Common.Interfaces;
-using StackOverflowLite.Application.Common.Options;
-using StackOverflowLite.Infrastructure.Identity;
-using StackOverflowLite.Infrastructure.Persistence;
-using StackOverflowLite.Infrastructure.Persistence.Repositories;
 using StackOverflowLite.Infrastructure.Services;
+using StackOverflowLite.Infrastructure.Identity;
+using StackOverflowLite.Application.Common.Options;
+using StackOverflowLite.Infrastructure.Persistence;
+using StackOverflowLite.Application.Common.Interfaces;
+using StackOverflowLite.Infrastructure.Persistence.Repositories;
 
 namespace StackOverflowLite.Infrastructure;
 
@@ -39,13 +38,13 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<ICurrentUser, CurrentUserService>();
         services.AddScoped<IIdentityService, IdentityService>();
-
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IQuestionRepository, QuestionRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IAnswerRepository, AnswerRepository>();
+        services.AddScoped<IVoteRepository, VoteRepository>();
+        services.AddScoped<IVoteService, VoteService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         return services;
     }
