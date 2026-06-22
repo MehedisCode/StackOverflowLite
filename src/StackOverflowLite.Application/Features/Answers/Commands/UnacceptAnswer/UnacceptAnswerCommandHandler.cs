@@ -24,7 +24,7 @@ public class UnacceptAnswerCommandHandler(
             throw new ForbiddenAccessException("Only the question owner can remove the accepted answer.");
         }
 
-        // not currently the accepted answer 
+        // not currently the accepted answer
         if (answer.Question.AcceptedAnswerId != answer.Id)
         {
             return Unit.Value;
@@ -35,6 +35,7 @@ public class UnacceptAnswerCommandHandler(
 
         unitOfWork.Questions.Update(answer.Question);
         unitOfWork.Answers.Update(answer);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

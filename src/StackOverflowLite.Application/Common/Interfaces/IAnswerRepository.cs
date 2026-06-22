@@ -13,4 +13,8 @@ public interface IAnswerRepository : IRepository<Answer>
     Task<(IReadOnlyList<Answer> Items, int TotalCount)> ListAsync(
         ListAnswersFilter filter,
         CancellationToken cancellationToken = default);
+
+    Task<(int Upvotes, int Downvotes, int Accepted)> GetUserAnswerVoteStatsAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

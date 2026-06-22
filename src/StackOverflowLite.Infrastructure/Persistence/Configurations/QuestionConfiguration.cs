@@ -21,11 +21,11 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .IsRequired()
             .HasColumnType("text");
 
-        builder.Property(q => q.Score)
+        builder.Property(q => q.UpvoteCount)
             .HasDefaultValue(0);
 
-        builder.Property(q => q.ViewCount)
-            .HasDefaultValue(0L);
+        builder.Property(q => q.DownvoteCount)
+            .HasDefaultValue(0);
 
         builder.Property(q => q.AnswerCount)
             .HasDefaultValue(0);
@@ -59,9 +59,9 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.HasIndex(q => q.AuthorId)
             .HasDatabaseName("IX_Questions_AuthorId");
 
-        builder.HasIndex(q => q.Score)
+        builder.HasIndex(q => q.UpvoteCount)
             .IsDescending()
-            .HasDatabaseName("IX_Questions_Score");
+            .HasDatabaseName("IX_Questions_UpvoteCount");
 
         builder.HasIndex(q => q.CreatedAt)
             .IsDescending()

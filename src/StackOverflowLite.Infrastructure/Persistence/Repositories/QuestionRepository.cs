@@ -43,4 +43,15 @@ public class QuestionRepository(ApplicationDbContext db)
 
         return (items, total);
     }
+
+    public async Task<(int Upvotes, int Downvotes)> GetUserQuestionVoteStatsAsync(
+        Guid userId, CancellationToken cancellationToken = default)
+    {
+        var query = Db.Questions.Where(q => q.AuthorId == userId);
+
+        var upvotes = await query.SumAsync(q => q.UpvoteCount, cancellationToken);
+        var downvotes = await query.SumAsync(q => q.DownvoteCount, cancellationToken);
+
+        return (upvotes, downvotes);
+    }
 }

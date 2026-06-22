@@ -14,9 +14,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .IsRequired()
             .HasMaxLength(80);
 
-        builder.Property(u => u.Reputation)
-            .HasDefaultValue(1);
-
         builder.Property(u => u.CreatedAt)
             .IsRequired();
 

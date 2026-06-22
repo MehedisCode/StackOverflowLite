@@ -14,7 +14,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Vote> Votes => Set<Vote>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<QuestionTag> QuestionTags => Set<QuestionTag>();
-    public DbSet<ReputationHistory> ReputationHistory => Set<ReputationHistory>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

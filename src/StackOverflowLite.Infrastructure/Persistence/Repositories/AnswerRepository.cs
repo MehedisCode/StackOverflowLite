@@ -22,15 +22,27 @@ public class AnswerRepository(ApplicationDbContext db)
 
         var total = await query.CountAsync(cancellationToken);
 
-        // Order: accepted first, then by score, then by recent 
+        // Order: accepted first, then by score, then by recent
         var items = await query
             .OrderByDescending(a => a.IsAccepted)
-            .ThenByDescending(a => a.Score)
+            .ThenByDescending(a => a.UpvoteCount)
             .ThenByDescending(a => a.CreatedAt)
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ToListAsync(cancellationToken);
 
         return (items, total);
+    }
+
+    public async Task<(int Upvotes, int Downvotes, int Accepted)> GetUserAnswerVoteStatsAsync(
+        Guid userId, CancellationToken cancellationToken = default)
+    {
+        var query = Db.Answers.Where(a => a.AuthorId == userId);
+
+        var upvotes = await query.SumAsync(a => a.UpvoteCount, cancellationToken);
+        var downvotes = await query.SumAsync(a => a.DownvoteCount, cancellationToken);
+        var accepted = await query.CountAsync(a => a.IsAccepted, cancellationToken);
+
+        return (upvotes, downvotes, accepted);
     }
 }

@@ -17,7 +17,10 @@ public class AnswerConfiguration : IEntityTypeConfiguration<Answer>
             .IsRequired()
             .HasColumnType("text");
 
-        builder.Property(a => a.Score)
+        builder.Property(a => a.UpvoteCount)
+            .HasDefaultValue(0);
+
+        builder.Property(a => a.DownvoteCount)
             .HasDefaultValue(0);
 
         builder.Property(a => a.IsAccepted)
@@ -38,8 +41,8 @@ public class AnswerConfiguration : IEntityTypeConfiguration<Answer>
             .HasForeignKey(a => a.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(a => new { a.QuestionId, a.IsAccepted, a.Score })
-            .HasDatabaseName("IX_Answers_QuestionId_IsAccepted_Score");
+        builder.HasIndex(a => new { a.QuestionId, a.IsAccepted, a.UpvoteCount })
+            .HasDatabaseName("IX_Answers_QuestionId_IsAccepted_UpvoteCount");
 
         builder.HasIndex(a => a.AuthorId)
             .HasDatabaseName("IX_Answers_AuthorId");

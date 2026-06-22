@@ -11,4 +11,8 @@ public interface IQuestionRepository : IRepository<Question>
     Task<(IReadOnlyList<Question> Items, int TotalCount)> ListAsync(
         ListQuestionsFilter filter,
         CancellationToken cancellationToken = default);
+
+    Task<(int Upvotes, int Downvotes)> GetUserQuestionVoteStatsAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

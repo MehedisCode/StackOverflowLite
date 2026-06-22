@@ -4,7 +4,8 @@ public record QuestionListItemDto(
     Guid Id,
     string Title,
     Guid AuthorId,
-    int Score,
+    int UpvoteCount,
+    int DownvoteCount,
     int AnswerCount,
     DateTime CreatedAt,
     string[] Tags);

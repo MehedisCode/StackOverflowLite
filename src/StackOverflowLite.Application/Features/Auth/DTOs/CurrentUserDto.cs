@@ -4,5 +4,4 @@ public record CurrentUserDto(
     Guid Id,
     string Email,
     string DisplayName,
-    int Reputation,
     DateTime CreatedAt);

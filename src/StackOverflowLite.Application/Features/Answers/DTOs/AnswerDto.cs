@@ -5,7 +5,8 @@ public record AnswerDto(
     Guid QuestionId,
     Guid AuthorId,
     string Body,
-    int Score,
+    int UpvoteCount,
+    int DownvoteCount,
     bool IsAccepted,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

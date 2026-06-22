@@ -72,7 +72,6 @@ public class IdentityService(UserManager<ApplicationUser> userManager) : IIdenti
             user.Id,
             user.Email ?? string.Empty,
             user.DisplayName,
-            user.Reputation,
             user.CreatedAt);
     }
 }

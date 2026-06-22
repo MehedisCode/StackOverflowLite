@@ -6,8 +6,8 @@ public class Question
     public Guid AuthorId { get; init; }
     public string Title { get; set; } = string.Empty;
     public string Body { get; set; } = string.Empty;
-    public int Score { get; private set; }
-    public long ViewCount { get; private set; }
+    public int UpvoteCount { get; private set; }
+    public int DownvoteCount { get; private set; }
     public int AnswerCount { get; private set; }
     public Guid? AcceptedAnswerId { get; private set; }
 
@@ -34,5 +34,23 @@ public class Question
         }
     }
 
-    public void IncrementScore(int delta) => Score += delta;
+    public void IncrementUpvoteCount() => UpvoteCount++;
+
+    public void DecrementUpvoteCount()
+    {
+        if (UpvoteCount > 0)
+        {
+            UpvoteCount--;
+        }
+    }
+
+    public void IncrementDownvoteCount() => DownvoteCount++;
+
+    public void DecrementDownvoteCount()
+    {
+        if (DownvoteCount > 0)
+        {
+            DownvoteCount--;
+        }
+    }
 }

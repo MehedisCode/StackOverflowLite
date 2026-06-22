@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace StackOverflowLite.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitalCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,9 +48,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     DisplayName = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
-                    Bio = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    AvatarUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Reputation = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -180,36 +177,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "reputation_history",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SourceUserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    Delta = table.Column<int>(type: "integer", nullable: false),
-                    Reason = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    TargetType = table.Column<int>(type: "integer", nullable: true),
-                    TargetId = table.Column<Guid>(type: "uuid", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_reputation_history", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_reputation_history_users_SourceUserId",
-                        column: x => x.SourceUserId,
-                        principalTable: "users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_reputation_history_users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "votes",
                 columns: table => new
                 {
@@ -240,7 +207,8 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     QuestionId = table.Column<Guid>(type: "uuid", nullable: false),
                     AuthorId = table.Column<Guid>(type: "uuid", nullable: false),
                     Body = table.Column<string>(type: "text", nullable: false),
-                    Score = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    UpvoteCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    DownvoteCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     IsAccepted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -264,8 +232,8 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     AuthorId = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Body = table.Column<string>(type: "text", nullable: false),
-                    Score = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    ViewCount = table.Column<long>(type: "bigint", nullable: false, defaultValue: 0L),
+                    UpvoteCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    DownvoteCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     AnswerCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     AcceptedAnswerId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -319,9 +287,9 @@ namespace StackOverflowLite.Infrastructure.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Answers_QuestionId_IsAccepted_Score",
+                name: "IX_Answers_QuestionId_IsAccepted_UpvoteCount",
                 table: "answers",
-                columns: new[] { "QuestionId", "IsAccepted", "Score" });
+                columns: new[] { "QuestionId", "IsAccepted", "UpvoteCount" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -371,26 +339,10 @@ namespace StackOverflowLite.Infrastructure.Migrations
                 descending: new bool[0]);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Questions_Score",
+                name: "IX_Questions_UpvoteCount",
                 table: "questions",
-                column: "Score",
+                column: "UpvoteCount",
                 descending: new bool[0]);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_reputation_history_SourceUserId",
-                table: "reputation_history",
-                column: "SourceUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReputationHistory_Target",
-                table: "reputation_history",
-                columns: new[] { "TargetType", "TargetId" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReputationHistory_UserId_CreatedAt",
-                table: "reputation_history",
-                columns: new[] { "UserId", "CreatedAt" },
-                descending: new[] { false, true });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tags_Name_Unique",
@@ -464,9 +416,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "question_tags");
-
-            migrationBuilder.DropTable(
-                name: "reputation_history");
 
             migrationBuilder.DropTable(
                 name: "votes");

@@ -60,6 +60,7 @@ public class AcceptAnswerCommandHandler(
 
         unitOfWork.Questions.Update(answer.Question);
         unitOfWork.Answers.Update(answer);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

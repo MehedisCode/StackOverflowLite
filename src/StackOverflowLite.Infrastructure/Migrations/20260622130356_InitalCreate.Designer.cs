@@ -12,8 +12,8 @@ using StackOverflowLite.Infrastructure.Persistence;
 namespace StackOverflowLite.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260619092836_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260622130356_InitalCreate")]
+    partial class InitalCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -171,6 +171,11 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("DownvoteCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<bool>("IsAccepted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -179,21 +184,21 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Score")
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UpvoteCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId")
                         .HasDatabaseName("IX_Answers_AuthorId");
 
-                    b.HasIndex("QuestionId", "IsAccepted", "Score")
-                        .HasDatabaseName("IX_Answers_QuestionId_IsAccepted_Score");
+                    b.HasIndex("QuestionId", "IsAccepted", "UpvoteCount")
+                        .HasDatabaseName("IX_Answers_QuestionId_IsAccepted_UpvoteCount");
 
                     b.ToTable("answers", (string)null);
                 });
@@ -222,7 +227,7 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Score")
+                    b.Property<int>("DownvoteCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
@@ -235,10 +240,10 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("ViewCount")
+                    b.Property<int>("UpvoteCount")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasDefaultValue(0L);
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
@@ -251,9 +256,9 @@ namespace StackOverflowLite.Infrastructure.Migrations
                         .IsDescending()
                         .HasDatabaseName("IX_Questions_CreatedAt");
 
-                    b.HasIndex("Score")
+                    b.HasIndex("UpvoteCount")
                         .IsDescending()
-                        .HasDatabaseName("IX_Questions_Score");
+                        .HasDatabaseName("IX_Questions_UpvoteCount");
 
                     b.ToTable("questions", (string)null);
                 });
@@ -275,49 +280,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
                         .HasDatabaseName("IX_QuestionTags_TagId");
 
                     b.ToTable("question_tags", (string)null);
-                });
-
-            modelBuilder.Entity("StackOverflowLite.Domain.Entities.ReputationHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Delta")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<Guid?>("SourceUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("TargetId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("TargetType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SourceUserId");
-
-                    b.HasIndex("TargetType", "TargetId")
-                        .HasDatabaseName("IX_ReputationHistory_Target");
-
-                    b.HasIndex("UserId", "CreatedAt")
-                        .IsDescending(false, true)
-                        .HasDatabaseName("IX_ReputationHistory_UserId_CreatedAt");
-
-                    b.ToTable("reputation_history", (string)null);
                 });
 
             modelBuilder.Entity("StackOverflowLite.Domain.Entities.Tag", b =>
@@ -404,14 +366,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AvatarUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Bio")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
@@ -453,11 +407,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("Reputation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -590,20 +539,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("StackOverflowLite.Domain.Entities.ReputationHistory", b =>
-                {
-                    b.HasOne("StackOverflowLite.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("SourceUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("StackOverflowLite.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("ReputationHistory")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("StackOverflowLite.Domain.Entities.Vote", b =>
                 {
                     b.HasOne("StackOverflowLite.Infrastructure.Identity.ApplicationUser", null)
@@ -630,8 +565,6 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     b.Navigation("Answers");
 
                     b.Navigation("Questions");
-
-                    b.Navigation("ReputationHistory");
 
                     b.Navigation("Votes");
                 });

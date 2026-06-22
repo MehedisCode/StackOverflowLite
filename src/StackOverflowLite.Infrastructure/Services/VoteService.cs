@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using StackOverflowLite.Application.Common.Exceptions;
 using StackOverflowLite.Application.Common.Interfaces;
 using StackOverflowLite.Domain.Entities;
@@ -5,7 +6,9 @@ using StackOverflowLite.Domain.Enums;
 
 namespace StackOverflowLite.Infrastructure.Services;
 
-public class VoteService(IUnitOfWork unitOfWork) : IVoteService
+public class VoteService(
+    IUnitOfWork unitOfWork,
+    ILogger<VoteService> logger) : IVoteService
 {
     public async Task CastVoteAsync(
         Guid userId, VoteTargetType targetType, Guid targetId, VoteType voteType,
@@ -19,9 +22,14 @@ public class VoteService(IUnitOfWork unitOfWork) : IVoteService
             if (question.AuthorId == userId)
                 throw new CannotVoteOnOwnContentException();
 
-            var delta = await ApplyVoteAsync(userId, targetType, targetId, voteType, cancellationToken);
-            question.IncrementScore(delta);
-            unitOfWork.Questions.Update(question);
+            var (oldVoteType, newVoteType) = await ApplyVoteAsync(
+                userId, targetType, targetId, voteType, cancellationToken);
+
+            ApplyCounterMutation(question, oldVoteType, newVoteType);
+            if (oldVoteType != newVoteType)
+            {
+                unitOfWork.Questions.Update(question);
+            }
         }
         else
         {
@@ -31,9 +39,14 @@ public class VoteService(IUnitOfWork unitOfWork) : IVoteService
             if (answer.AuthorId == userId)
                 throw new CannotVoteOnOwnContentException();
 
-            var delta = await ApplyVoteAsync(userId, targetType, targetId, voteType, cancellationToken);
-            answer.IncrementScore(delta);
-            unitOfWork.Answers.Update(answer);
+            var (oldVoteType, newVoteType) = await ApplyVoteAsync(
+                userId, targetType, targetId, voteType, cancellationToken);
+
+            ApplyCounterMutation(answer, oldVoteType, newVoteType);
+            if (oldVoteType != newVoteType)
+            {
+                unitOfWork.Answers.Update(answer);
+            }
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -49,7 +62,7 @@ public class VoteService(IUnitOfWork unitOfWork) : IVoteService
         if (existing is null)
             return;
 
-        var delta = -(int)existing.VoteType;
+        var removedVoteType = existing.VoteType;
         unitOfWork.Votes.Delete(existing);
 
         if (targetType == VoteTargetType.Question)
@@ -57,8 +70,14 @@ public class VoteService(IUnitOfWork unitOfWork) : IVoteService
             var question = await unitOfWork.Questions.GetByIdAsync(targetId, cancellationToken);
             if (question is not null)
             {
-                question.IncrementScore(delta);
+                ApplyCounterMutation(question, removedVoteType, newVoteType: null);
                 unitOfWork.Questions.Update(question);
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Question {QuestionId} missing while reversing vote by user {UserId}.",
+                    targetId, userId);
             }
         }
         else
@@ -66,15 +85,21 @@ public class VoteService(IUnitOfWork unitOfWork) : IVoteService
             var answer = await unitOfWork.Answers.GetByIdAsync(targetId, cancellationToken);
             if (answer is not null)
             {
-                answer.IncrementScore(delta);
+                ApplyCounterMutation(answer, removedVoteType, newVoteType: null);
                 unitOfWork.Answers.Update(answer);
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Answer {AnswerId} missing while reversing vote by user {UserId}.",
+                    targetId, userId);
             }
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task<int> ApplyVoteAsync(
+    private async Task<(VoteType? OldVoteType, VoteType NewVoteType)> ApplyVoteAsync(
         Guid userId, VoteTargetType targetType, Guid targetId, VoteType voteType,
         CancellationToken cancellationToken)
     {
@@ -90,16 +115,64 @@ public class VoteService(IUnitOfWork unitOfWork) : IVoteService
                 TargetType = targetType,
                 VoteType = voteType
             }, cancellationToken);
-            return (int)voteType;
+            return (null, voteType);
         }
 
         if (existing.VoteType == voteType)
-            return 0;
+            return (existing.VoteType, voteType);
 
-        var delta = (int)voteType - (int)existing.VoteType;
         existing.ChangeVoteType(voteType);
         existing.MarkUpdated();
         unitOfWork.Votes.Update(existing);
-        return delta;
+        return (existing.VoteType, voteType);
+    }
+
+    // Apply per-counter mutations on the question/answer entity for the (old, new) vote transition.
+    private static void ApplyCounterMutation(Question question, VoteType? oldVoteType, VoteType? newVoteType)
+    {
+        if (oldVoteType == newVoteType)
+            return;
+
+        if (oldVoteType == VoteType.Upvote)
+        {
+            question.DecrementUpvoteCount();
+        }
+        else if (oldVoteType == VoteType.Downvote)
+        {
+            question.DecrementDownvoteCount();
+        }
+
+        if (newVoteType == VoteType.Upvote)
+        {
+            question.IncrementUpvoteCount();
+        }
+        else if (newVoteType == VoteType.Downvote)
+        {
+            question.IncrementDownvoteCount();
+        }
+    }
+
+    private static void ApplyCounterMutation(Answer answer, VoteType? oldVoteType, VoteType? newVoteType)
+    {
+        if (oldVoteType == newVoteType)
+            return;
+
+        if (oldVoteType == VoteType.Upvote)
+        {
+            answer.DecrementUpvoteCount();
+        }
+        else if (oldVoteType == VoteType.Downvote)
+        {
+            answer.DecrementDownvoteCount();
+        }
+
+        if (newVoteType == VoteType.Upvote)
+        {
+            answer.IncrementUpvoteCount();
+        }
+        else if (newVoteType == VoteType.Downvote)
+        {
+            answer.IncrementDownvoteCount();
+        }
     }
 }

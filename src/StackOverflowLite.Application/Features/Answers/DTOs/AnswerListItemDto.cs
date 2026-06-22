@@ -4,6 +4,7 @@ public record AnswerListItemDto(
     Guid Id,
     Guid AuthorId,
     string Body,
-    int Score,
+    int UpvoteCount,
+    int DownvoteCount,
     bool IsAccepted,
     DateTime CreatedAt);
