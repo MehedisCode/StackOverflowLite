@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
 using StackOverflowLite.Api.Middleware;
 using StackOverflowLite.Application;
 using StackOverflowLite.Application.Common.Options;
@@ -13,6 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration.ReadFrom.Configuration(context.Configuration);
+});
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    return ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("redis")!)
+        ?? throw new InvalidOperationException("redis connection string not found.");
 });
 
 builder.Services.AddControllers();

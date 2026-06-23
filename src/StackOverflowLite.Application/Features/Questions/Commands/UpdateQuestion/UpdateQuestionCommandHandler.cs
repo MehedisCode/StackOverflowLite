@@ -9,7 +9,8 @@ namespace StackOverflowLite.Application.Features.Questions.Commands.UpdateQuesti
 
 public class UpdateQuestionCommandHandler(
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork) : IRequestHandler<UpdateQuestionCommand, QuestionDto>
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService) : IRequestHandler<UpdateQuestionCommand, QuestionDto>
 {
     public async Task<QuestionDto> Handle(
         UpdateQuestionCommand request, CancellationToken cancellationToken)
@@ -61,6 +62,9 @@ public class UpdateQuestionCommandHandler(
         question.MarkUpdated();
         unitOfWork.Questions.Update(question);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"question:{request.Id}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync("questions:page:", cancellationToken);
 
         return QuestionMapping.ToDto(question);
     }

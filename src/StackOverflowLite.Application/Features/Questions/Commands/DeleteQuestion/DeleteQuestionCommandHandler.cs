@@ -6,7 +6,8 @@ namespace StackOverflowLite.Application.Features.Questions.Commands.DeleteQuesti
 
 public class DeleteQuestionCommandHandler(
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork) : IRequestHandler<DeleteQuestionCommand, Unit>
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService) : IRequestHandler<DeleteQuestionCommand, Unit>
 {
     public async Task<Unit> Handle(
         DeleteQuestionCommand request, CancellationToken cancellationToken)
@@ -26,6 +27,9 @@ public class DeleteQuestionCommandHandler(
 
         unitOfWork.Questions.Delete(question);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"question:{request.Id}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync("questions:page:", cancellationToken);
 
         return Unit.Value;
     }

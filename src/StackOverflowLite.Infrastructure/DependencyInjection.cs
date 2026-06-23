@@ -7,6 +7,7 @@ using StackOverflowLite.Application.Common.Options;
 using StackOverflowLite.Infrastructure.Persistence;
 using StackOverflowLite.Application.Common.Interfaces;
 using StackOverflowLite.Infrastructure.Persistence.Repositories;
+using StackOverflowLite.Infrastructure.Caching;
 
 namespace StackOverflowLite.Infrastructure;
 
@@ -35,6 +36,7 @@ public static class DependencyInjection
             })
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
+        services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<ICurrentUser, CurrentUserService>();
         services.AddScoped<IIdentityService, IdentityService>();
