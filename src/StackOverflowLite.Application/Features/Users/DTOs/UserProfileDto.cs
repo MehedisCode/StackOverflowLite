@@ -1,6 +1,11 @@
 namespace StackOverflowLite.Application.Features.Users.DTOs;
 
-public record UserStatsDto(
+public record UserProfileDto(
+    Guid UserId,
+    string DisplayName,
+    DateTime JoinedAt,
+    int QuestionsCount,
+    int AnswersCount,
     int QuestionUpvotesReceived,
     int QuestionDownvotesReceived,
     int AnswerUpvotesReceived,

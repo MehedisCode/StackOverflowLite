@@ -45,4 +45,10 @@ public class AnswerRepository(ApplicationDbContext db)
 
         return (upvotes, downvotes, accepted);
     }
+
+    public Task<int> GetUserAnswerCountAsync(
+        Guid userId, CancellationToken cancellationToken = default)
+    {
+        return Db.Answers.CountAsync(a => a.AuthorId == userId, cancellationToken);
+    }
 }

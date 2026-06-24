@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StackOverflowLite.Application.Features.Users.DTOs;
-using StackOverflowLite.Application.Features.Users.Queries.GetUserStats;
+using StackOverflowLite.Application.Features.Users.Queries.GetUserProfile;
 
 namespace StackOverflowLite.Api.Controllers;
 
@@ -10,12 +10,11 @@ namespace StackOverflowLite.Api.Controllers;
 [Route("api/users")]
 public class UsersController(ISender sender) : ControllerBase
 {
-    [HttpGet("{userId:guid}/stats")]
-    [AllowAnonymous]
-    public async Task<ActionResult<UserStatsDto>> GetStats(
-        Guid userId, CancellationToken cancellationToken)
+    [HttpGet("me/profile")]
+    [Authorize]
+    public async Task<ActionResult<UserProfileDto>> GetProfile(CancellationToken cancellationToken)
     {
-        var dto = await sender.Send(new GetUserStatsQuery(userId), cancellationToken);
+        var dto = await sender.Send(new GetUserProfileQuery(), cancellationToken);
         return dto is null ? NotFound() : Ok(dto);
     }
 }
