@@ -58,6 +58,11 @@ public class VoteService(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"user:profile:{targetAuthorId}", cancellationToken);
+
+        if (targetType == VoteTargetType.Question)
+        {
+            await cacheService.RemoveAsync($"question:{targetId}", cancellationToken);
+        }
     }
 
     public async Task RemoveVoteAsync(
@@ -114,9 +119,14 @@ public class VoteService(
         {
             await cacheService.RemoveAsync($"user:profile:{targetAuthorId.Value}", cancellationToken);
         }
+
+        if (targetType == VoteTargetType.Question)
+        {
+            await cacheService.RemoveAsync($"question:{targetId}", cancellationToken);
+        }
     }
 
-    private async Task<(VoteType? OldVoteType, VoteType NewVoteType)> ApplyVoteAsync(
+    private async Task<(VoteType? OldVoteType, VoteType? NewVoteType)> ApplyVoteAsync(
         Guid userId, VoteTargetType targetType, Guid targetId, VoteType voteType,
         CancellationToken cancellationToken)
     {
@@ -136,12 +146,16 @@ public class VoteService(
         }
 
         if (existing.VoteType == voteType)
-            return (existing.VoteType, voteType);
+        {
+            unitOfWork.Votes.Delete(existing);
+            return (existing.VoteType, null);
+        }
 
+        var oldVoteType = existing.VoteType;
         existing.ChangeVoteType(voteType);
         existing.MarkUpdated();
         unitOfWork.Votes.Update(existing);
-        return (existing.VoteType, voteType);
+        return (oldVoteType, voteType);
     }
 
     // Apply per-counter mutations on the question/answer entity for the (old, new) vote transition.
