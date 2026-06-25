@@ -8,6 +8,7 @@ public record QuestionDto(
     int UpvoteCount,
     int DownvoteCount,
     int AnswerCount,
+    int ViewCount,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     string[] Tags);

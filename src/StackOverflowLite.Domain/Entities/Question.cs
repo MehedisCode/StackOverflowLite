@@ -9,6 +9,7 @@ public class Question
     public int UpvoteCount { get; private set; }
     public int DownvoteCount { get; private set; }
     public int AnswerCount { get; private set; }
+    public int ViewCount { get; private set; }
     public Guid? AcceptedAnswerId { get; private set; }
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
@@ -23,6 +24,8 @@ public class Question
     public void SetAcceptedAnswer(Guid? id) => AcceptedAnswerId = id;
 
     public void ClearAcceptedAnswer() => AcceptedAnswerId = null;
+
+    public void IncrementViewCount() => ViewCount++;
 
     public void IncrementAnswerCount() => AnswerCount++;
 

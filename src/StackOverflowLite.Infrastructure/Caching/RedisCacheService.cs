@@ -53,31 +53,5 @@ public class RedisCacheService(
         }
     }
 
-    public async Task RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var pattern = WithPrefix(prefix) + "*";
-            foreach (var endpoint in multiplexer.GetEndPoints())
-            {
-                var server = multiplexer.GetServer(endpoint);
-                if (!server.IsConnected || server.IsReplica) continue;
-
-                var batch = Db.CreateBatch();
-                var pending = new List<Task>();
-                await foreach (var key in server.KeysAsync(pattern: pattern, pageSize: 100).WithCancellation(cancellationToken))
-                {
-                    pending.Add(batch.KeyDeleteAsync(key));
-                }
-                batch.Execute();
-                await Task.WhenAll(pending);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Cache REMOVE-BY-PREFIX failed for prefix {Prefix}.", prefix);
-        }
-    }
-
     private string WithPrefix(string key) => "StackOverflowLite:" + key;
 }

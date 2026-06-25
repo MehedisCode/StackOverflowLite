@@ -29,7 +29,6 @@ public class DeleteQuestionCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await cacheService.RemoveAsync($"question:{request.Id}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync("questions:page:", cancellationToken);
 
         return Unit.Value;
     }

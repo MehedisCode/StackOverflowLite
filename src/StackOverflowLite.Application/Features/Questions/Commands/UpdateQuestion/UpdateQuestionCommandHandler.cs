@@ -35,7 +35,7 @@ public class UpdateQuestionCommandHandler(
 
         var existingTags = normalizedTags.Length > 0
             ? await unitOfWork.Tags.GetByNamesAsync(normalizedTags, cancellationToken)
-            : new List<Tag>();
+            : [];
 
         var existingNames = existingTags.Select(t => t.Name).ToHashSet();
         var newTags = normalizedTags
@@ -64,7 +64,6 @@ public class UpdateQuestionCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await cacheService.RemoveAsync($"question:{request.Id}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync("questions:page:", cancellationToken);
 
         return QuestionMapping.ToDto(question);
     }

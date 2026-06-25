@@ -7,5 +7,6 @@ public record QuestionListItemDto(
     int UpvoteCount,
     int DownvoteCount,
     int AnswerCount,
+    int ViewCount,
     DateTime CreatedAt,
     string[] Tags);

@@ -33,6 +33,7 @@ internal static class QuestionMapping
             question.UpvoteCount,
             question.DownvoteCount,
             question.AnswerCount,
+            question.ViewCount,
             question.CreatedAt,
             question.UpdatedAt,
             GetTagNames(question));
@@ -45,6 +46,7 @@ internal static class QuestionMapping
             question.UpvoteCount,
             question.DownvoteCount,
             question.AnswerCount,
+            question.ViewCount,
             question.CreatedAt,
             GetTagNames(question));
 }

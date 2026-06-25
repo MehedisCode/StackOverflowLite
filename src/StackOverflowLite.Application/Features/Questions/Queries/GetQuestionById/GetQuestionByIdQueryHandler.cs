@@ -14,18 +14,35 @@ public class GetQuestionByIdQueryHandler(
     {
         var cacheKey = $"question:{request.Id}";
         var cached = await cacheService.GetAsync<QuestionDto>(cacheKey, cancellationToken);
+
         if (cached is not null)
         {
-            return cached;
+            var question = await unitOfWork.Questions.GetByIdAsync(request.Id, cancellationToken);
+            if (question is not null)
+            {
+                question.IncrementViewCount();
+                unitOfWork.Questions.Update(question);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+
+            var updatedDto = cached with { ViewCount = cached.ViewCount + 1 };
+            await cacheService.SetAsync(cacheKey, updatedDto, TimeSpan.FromMinutes(10), cancellationToken);
+
+            return updatedDto;
         }
 
-        var question = await unitOfWork.Questions.GetByIdWithTagsAsync(request.Id, cancellationToken);
-        var dto = question is null ? null : QuestionMapping.ToDto(question);
-
-        if (dto is not null)
+        var fullQuestion = await unitOfWork.Questions.GetByIdWithTagsAsync(request.Id, cancellationToken);
+        if (fullQuestion is null)
         {
-            await cacheService.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(10), cancellationToken);
+            return null;
         }
+
+        fullQuestion.IncrementViewCount();
+        unitOfWork.Questions.Update(fullQuestion);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var dto = QuestionMapping.ToDto(fullQuestion);
+        await cacheService.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(10), cancellationToken);
 
         return dto;
     }
