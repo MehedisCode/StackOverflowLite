@@ -15,7 +15,7 @@ using StackOverflowLite.Application.Features.Questions.Queries.GetQuestionById;
 namespace StackOverflowLite.Api.Controllers;
 
 [ApiController]
-[Route("api/questions")]
+[Route("api/[controller]")]
 public class QuestionsController(ISender sender) : ControllerBase
 {
     [HttpPost]
@@ -69,7 +69,7 @@ public class QuestionsController(ISender sender) : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<ActionResult<PagedResult<QuestionListItemDto>>> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,

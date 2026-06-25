@@ -8,7 +8,8 @@ namespace StackOverflowLite.Application.Features.Answers.Commands.AcceptAnswer;
 public class AcceptAnswerCommandHandler(
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork,
-    ILogger<AcceptAnswerCommandHandler> logger
+    ILogger<AcceptAnswerCommandHandler> logger,
+    ICacheService cacheService
     ) : IRequestHandler<AcceptAnswerCommand, Unit>
 {
     public async Task<Unit> Handle(
@@ -39,12 +40,15 @@ public class AcceptAnswerCommandHandler(
             return Unit.Value;
         }
 
+        Guid? oldAcceptedAuthorId = null;
+
         // unaccept the previously accepted answer (if any)
         if (answer.Question.AcceptedAnswerId is Guid oldAcceptedId && oldAcceptedId != answer.Id)
         {
             var oldAccepted = await unitOfWork.Answers.GetByIdAsync(oldAcceptedId, cancellationToken);
             if (oldAccepted is not null)
             {
+                oldAcceptedAuthorId = oldAccepted.AuthorId;
                 oldAccepted.MarkUnaccepted();
                 unitOfWork.Answers.Update(oldAccepted);
             }
@@ -62,6 +66,12 @@ public class AcceptAnswerCommandHandler(
         unitOfWork.Answers.Update(answer);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"user:profile:{answer.AuthorId}", cancellationToken);
+        if (oldAcceptedAuthorId is not null && oldAcceptedAuthorId != answer.AuthorId)
+        {
+            await cacheService.RemoveAsync($"user:profile:{oldAcceptedAuthorId}", cancellationToken);
+        }
 
         return Unit.Value;
     }

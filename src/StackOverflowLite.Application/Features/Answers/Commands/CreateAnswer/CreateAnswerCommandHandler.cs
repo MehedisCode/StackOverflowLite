@@ -9,7 +9,8 @@ namespace StackOverflowLite.Application.Features.Answers.Commands.CreateAnswer;
 
 public class CreateAnswerCommandHandler(
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork) : IRequestHandler<CreateAnswerCommand, AnswerDto>
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService) : IRequestHandler<CreateAnswerCommand, AnswerDto>
 {
     public async Task<AnswerDto> Handle(
         CreateAnswerCommand request, CancellationToken cancellationToken)
@@ -35,6 +36,8 @@ public class CreateAnswerCommandHandler(
         unitOfWork.Questions.Update(question);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"user:profile:{currentUser.Id.Value}", cancellationToken);
 
         return AnswerMapping.ToDto(answer);
     }

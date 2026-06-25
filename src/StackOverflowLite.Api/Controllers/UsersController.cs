@@ -10,7 +10,7 @@ namespace StackOverflowLite.Api.Controllers;
 [Route("api/users")]
 public class UsersController(ISender sender) : ControllerBase
 {
-    [HttpGet("me/profile")]
+    [HttpGet("me/[controller]")]
     [Authorize]
     public async Task<ActionResult<UserProfileDto>> GetProfile(CancellationToken cancellationToken)
     {

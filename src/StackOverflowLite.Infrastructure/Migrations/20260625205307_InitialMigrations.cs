@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace StackOverflowLite.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitalCreate : Migration
+    public partial class InitialMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -235,6 +235,7 @@ namespace StackOverflowLite.Infrastructure.Migrations
                     UpvoteCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     DownvoteCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     AnswerCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false),
                     AcceptedAnswerId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)

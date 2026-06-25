@@ -9,7 +9,8 @@ namespace StackOverflowLite.Application.Features.Questions.Commands.CreateQuesti
 
 public class CreateQuestionCommandHandler(
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork) : IRequestHandler<CreateQuestionCommand, QuestionDto>
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService) : IRequestHandler<CreateQuestionCommand, QuestionDto>
 {
     public async Task<QuestionDto> Handle(
         CreateQuestionCommand request, CancellationToken cancellationToken)
@@ -55,6 +56,8 @@ public class CreateQuestionCommandHandler(
 
         await unitOfWork.Questions.AddAsync(question, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"user:profile:{currentUser.Id.Value}", cancellationToken);
 
         return QuestionMapping.ToDto(question);
     }

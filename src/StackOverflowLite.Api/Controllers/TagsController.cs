@@ -13,7 +13,7 @@ using StackOverflowLite.Application.Features.Tags.Queries.GetTags;
 namespace StackOverflowLite.Api.Controllers;
 
 [ApiController]
-[Route("api/tags")]
+[Route("api/[controller]")]
 public class TagsController(ISender sender) : ControllerBase
 {
     [HttpPost]

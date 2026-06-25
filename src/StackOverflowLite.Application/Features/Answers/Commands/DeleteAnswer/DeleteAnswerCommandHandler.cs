@@ -6,7 +6,8 @@ namespace StackOverflowLite.Application.Features.Answers.Commands.DeleteAnswer;
 
 public class DeleteAnswerCommandHandler(
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork) : IRequestHandler<DeleteAnswerCommand, Unit>
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService) : IRequestHandler<DeleteAnswerCommand, Unit>
 {
     public async Task<Unit> Handle(
         DeleteAnswerCommand request, CancellationToken cancellationToken)
@@ -34,6 +35,8 @@ public class DeleteAnswerCommandHandler(
         unitOfWork.Questions.Update(answer.Question);
         unitOfWork.Answers.Delete(answer);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"user:profile:{answer.AuthorId}", cancellationToken);
 
         return Unit.Value;
     }

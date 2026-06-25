@@ -6,7 +6,8 @@ namespace StackOverflowLite.Application.Features.Answers.Commands.UnacceptAnswer
 
 public class UnacceptAnswerCommandHandler(
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork) : IRequestHandler<UnacceptAnswerCommand, Unit>
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService) : IRequestHandler<UnacceptAnswerCommand, Unit>
 {
     public async Task<Unit> Handle(
         UnacceptAnswerCommand request, CancellationToken cancellationToken)
@@ -37,6 +38,8 @@ public class UnacceptAnswerCommandHandler(
         unitOfWork.Answers.Update(answer);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"user:profile:{answer.AuthorId}", cancellationToken);
 
         return Unit.Value;
     }

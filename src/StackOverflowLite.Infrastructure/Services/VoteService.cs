@@ -8,12 +8,15 @@ namespace StackOverflowLite.Infrastructure.Services;
 
 public class VoteService(
     IUnitOfWork unitOfWork,
-    ILogger<VoteService> logger) : IVoteService
+    ILogger<VoteService> logger,
+    ICacheService cacheService) : IVoteService
 {
     public async Task CastVoteAsync(
         Guid userId, VoteTargetType targetType, Guid targetId, VoteType voteType,
         CancellationToken cancellationToken = default)
     {
+        Guid targetAuthorId;
+
         if (targetType == VoteTargetType.Question)
         {
             var question = await unitOfWork.Questions.GetByIdAsync(targetId, cancellationToken)
@@ -21,6 +24,8 @@ public class VoteService(
 
             if (question.AuthorId == userId)
                 throw new CannotVoteOnOwnContentException();
+
+            targetAuthorId = question.AuthorId;
 
             var (oldVoteType, newVoteType) = await ApplyVoteAsync(
                 userId, targetType, targetId, voteType, cancellationToken);
@@ -39,6 +44,8 @@ public class VoteService(
             if (answer.AuthorId == userId)
                 throw new CannotVoteOnOwnContentException();
 
+            targetAuthorId = answer.AuthorId;
+
             var (oldVoteType, newVoteType) = await ApplyVoteAsync(
                 userId, targetType, targetId, voteType, cancellationToken);
 
@@ -50,6 +57,7 @@ public class VoteService(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await cacheService.RemoveAsync($"user:profile:{targetAuthorId}", cancellationToken);
     }
 
     public async Task RemoveVoteAsync(
@@ -62,6 +70,8 @@ public class VoteService(
         if (existing is null)
             return;
 
+        Guid? targetAuthorId = null;
+
         var removedVoteType = existing.VoteType;
         unitOfWork.Votes.Delete(existing);
 
@@ -70,6 +80,7 @@ public class VoteService(
             var question = await unitOfWork.Questions.GetByIdAsync(targetId, cancellationToken);
             if (question is not null)
             {
+                targetAuthorId = question.AuthorId;
                 ApplyCounterMutation(question, removedVoteType, newVoteType: null);
                 unitOfWork.Questions.Update(question);
             }
@@ -85,6 +96,7 @@ public class VoteService(
             var answer = await unitOfWork.Answers.GetByIdAsync(targetId, cancellationToken);
             if (answer is not null)
             {
+                targetAuthorId = answer.AuthorId;
                 ApplyCounterMutation(answer, removedVoteType, newVoteType: null);
                 unitOfWork.Answers.Update(answer);
             }
@@ -97,6 +109,11 @@ public class VoteService(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (targetAuthorId is not null)
+        {
+            await cacheService.RemoveAsync($"user:profile:{targetAuthorId.Value}", cancellationToken);
+        }
     }
 
     private async Task<(VoteType? OldVoteType, VoteType NewVoteType)> ApplyVoteAsync(
