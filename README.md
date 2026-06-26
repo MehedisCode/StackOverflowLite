@@ -41,7 +41,7 @@ The project strictly follows **Clean Architecture** principles to separate conce
 ## ✨ Features
 
 - **Authentication & Authorization:** JWT-based user authentication (Register, Login).
-- **Questions Management:** Users can post, read, update, filter and delete questions.
+- **Questions Management:** Users can post, read, update, search and delete questions.
 - **Answers Management:** Users can submit answers to specific questions.
 - **Tags System:** Categorize questions with multiple tags.
 - **Caching:** Redis integration for performant data retrieval.
