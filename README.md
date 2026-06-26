@@ -80,10 +80,10 @@ The easiest way to get the project running is by using Docker, which will automa
 
 2. **Run with Docker:**
    ```bash
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
 
-Once the containers are running, the API will be accessible at `http://localhost:8080`. To stop the containers, run `docker-compose down`.
+Once the containers are running, the API will be accessible at `http://localhost:8080`. To stop the containers, run `docker compose down`.
 
 ---
 
