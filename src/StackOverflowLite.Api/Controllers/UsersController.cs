@@ -7,10 +7,10 @@ using StackOverflowLite.Application.Features.Users.Queries.GetUserProfile;
 namespace StackOverflowLite.Api.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("api/[controller]")]
 public class UsersController(ISender sender) : ControllerBase
 {
-    [HttpGet("me/[controller]")]
+    [HttpGet("profile/me")]
     [Authorize]
     public async Task<ActionResult<UserProfileDto>> GetProfile(CancellationToken cancellationToken)
     {

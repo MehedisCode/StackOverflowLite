@@ -9,8 +9,8 @@ internal static class TagMapping
         name.Trim().ToLowerInvariant();
 
     public static TagDto ToDto(Tag tag) =>
-        new(tag.Id, tag.Name, tag.Description, tag.UsageCount, tag.CreatedAt);
+        new(tag.Id, tag.Name, tag.Description, tag.CreatedAt);
 
     public static TagListItemDto ToListItemDto(Tag tag) =>
-        new(tag.Id, tag.Name, tag.Description, tag.UsageCount);
+        new(tag.Id, tag.Name, tag.Description);
 }

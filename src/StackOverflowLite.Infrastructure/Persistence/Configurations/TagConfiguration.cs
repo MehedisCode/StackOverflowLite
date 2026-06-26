@@ -19,9 +19,6 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
         builder.Property(t => t.Description)
             .HasMaxLength(500);
 
-        builder.Property(t => t.UsageCount)
-            .HasDefaultValue(0);
-
         builder.Property(t => t.CreatedAt)
             .IsRequired();
 
@@ -36,8 +33,5 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
             .IsUnique()
             .HasDatabaseName("IX_Tags_Name_Unique");
 
-        builder.HasIndex(t => t.UsageCount)
-            .IsDescending()
-            .HasDatabaseName("IX_Tags_UsageCount");
     }
 }
