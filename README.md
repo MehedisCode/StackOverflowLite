@@ -5,25 +5,25 @@
 ![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=for-the-badge&logo=redis)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-A lightweight clone of StackOverflow built as a RESTful API using **.NET 10** and **Clean Architecture**. This project serves as a robust backend providing essential Q&A platform functionalities such as user authentication, asking questions, posting answers, and managing tags. 
+A lightweight clone of StackOverflow built as a RESTful API using **.NET 10** and **Clean Architecture**. This project serves as a robust backend providing essential Q&A platform functionalities such as user authentication, asking questions, posting answers, and managing tags.
 
 ---
 
 ## 📋 Table of Contents
+
 1. [Project Overview](#-project-overview)
 2. [Architecture](#-architecture)
 3. [Features](#-features)
 4. [Folder Structure](#-folder-structure)
 5. [Setup Instructions](#-setup-instructions)
-6. [Docker Instructions](#-docker-instructions)
-7. [Environment Variables](#-environment-variables)
-8. [API Documentation](#-api-documentation)
+6. [Environment Variables](#-environment-variables)
+7. [API Documentation](#-api-documentation)
 
 ---
 
 ## 🚀 Project Overview
 
-**StackOverflowLite** is a backend API designed to demonstrate modern C# and .NET web development best practices. It implements a scalable and maintainable system utilizing CQRS, Domain-Driven Design (DDD) principles, and Docker for containerized deployment. PostgreSQL is used as the primary relational database, while Redis handles distributed caching.
+**StackOverflowLite** is a backend API designed to demonstrate modern C# and .NET web development best practices. It implements a scalable and maintainable system utilizing CQRS and Docker for containerized deployment. PostgreSQL is used as the primary relational database, while Redis handles distributed caching.
 
 ---
 
@@ -41,7 +41,7 @@ The project strictly follows **Clean Architecture** principles to separate conce
 ## ✨ Features
 
 - **Authentication & Authorization:** JWT-based user authentication (Register, Login).
-- **Questions Management:** Users can post, read, update, and delete questions.
+- **Questions Management:** Users can post, read, update, filter and delete questions.
 - **Answers Management:** Users can submit answers to specific questions.
 - **Tags System:** Categorize questions with multiple tags.
 - **Caching:** Redis integration for performant data retrieval.
@@ -60,9 +60,6 @@ StackOverflowLite/
 │   ├── StackOverflowLite.Application/   # CQRS Handlers, DTOs, Interfaces
 │   ├── StackOverflowLite.Domain/        # Entities, Enums, Value Objects
 │   └── StackOverflowLite.Infrastructure/# EF Core DbContext, Repositories, Redis
-│
-├── docs/                                # Project documentation (features, fixes, infra)
-├── docker/                              # Docker-related configurations
 ├── docker-compose.yml                   # Multi-container Docker orchestration
 ├── Dockerfile                           # API containerization recipe
 └── StackOverflowLite.slnx               # Solution file
@@ -72,62 +69,21 @@ StackOverflowLite/
 
 ## 💻 Setup Instructions
 
-### Prerequisites
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Docker & Docker Desktop](https://www.docker.com/products/docker-desktop)
-- IDE (Visual Studio 2022, JetBrains Rider, or VS Code)
-
-### How to Clone and Run
+The easiest way to get the project running is by using Docker, which will automatically spin up the API, PostgreSQL database, and Redis cache.
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/MehedisCode/StackOverflowLite.git
    cd StackOverflowLite
    ```
 
-2. **Restore dependencies:**
-   ```bash
-   dotnet restore StackOverflowLite.slnx
-   ```
-
-3. **Spin up the database and cache:**
-   ```bash
-   docker-compose up -d postgres redis
-   ```
-   *(This starts PostgreSQL on port 5433 and Redis on port 6379)*
-
-4. **Apply Entity Framework Migrations (if applicable):**
-   ```bash
-   cd src/StackOverflowLite.Infrastructure
-   dotnet ef database update --startup-project ../StackOverflowLite.Api
-   ```
-
-5. **Run the API:**
-   ```bash
-   cd src/StackOverflowLite.Api
-   dotnet run
-   ```
-
----
-
-## 🐳 Docker Instructions
-
-To run the entire stack (API, Database, and Cache) seamlessly in isolated containers:
-
-1. Build and start all services in detached mode:
+2. **Run with Docker:**
    ```bash
    docker-compose up --build -d
    ```
 
-2. Check the logs to ensure the API is running:
-   ```bash
-   docker-compose logs -f api
-   ```
-
-3. To stop and remove the containers:
-   ```bash
-   docker-compose down
-   ```
+Once the containers are running, the API will be accessible at `http://localhost:8080`. To stop the containers, run `docker-compose down`.
 
 ---
 
@@ -135,11 +91,11 @@ To run the entire stack (API, Database, and Cache) seamlessly in isolated contai
 
 The application relies on the following environment variables (typically set in `appsettings.json`, `appsettings.Development.json`, or `docker-compose.yml`):
 
-| Variable Name | Description | Default / Example |
-|---------------|-------------|-------------------|
-| `ASPNETCORE_ENVIRONMENT` | Application Environment | `Development` |
+| Variable Name                          | Description                  | Default / Example                                          |
+| -------------------------------------- | ---------------------------- | ---------------------------------------------------------- |
+| `ASPNETCORE_ENVIRONMENT`               | Application Environment      | `Development`                                              |
 | `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | `Host=postgres;Port=5432;Database=StackOverflowLiteDb;...` |
-| `ConnectionStrings__redis` | Redis connection string | `redis:6379` |
+| `ConnectionStrings__redis`             | Redis connection string      | `redis:6379`                                               |
 
 ---
 
@@ -165,7 +121,7 @@ Once the API is running, you can interact with the endpoints. Swagger UI is typi
 - **Users:**
   - `GET /api/users/{id}` - Get a user's profile and reputation
 
-*(Detailed request/response schemas can be explored directly in the local Swagger UI).*
+_(Detailed request/response schemas can be explored directly in the local Swagger UI)._
 
 ---
 
